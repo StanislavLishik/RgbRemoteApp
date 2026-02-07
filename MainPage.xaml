@@ -1,0 +1,254 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:RgbRemoteApp.ViewModels"
+             x:Class="RgbRemoteApp.MainPage"
+             x:DataType="vm:MainViewModel"
+             BackgroundColor="#0A0E13">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="20" Spacing="10">
+
+            <!-- Settings Section -->
+            <Frame BackgroundColor="#0E141B" 
+                   BorderColor="#1B2430" 
+                   CornerRadius="16" 
+                   Padding="15"
+                   Margin="0,0,0,10">
+                <VerticalStackLayout Spacing="10">
+                    <Label Text="Настройки ESP8266" 
+                           TextColor="#EAF0F7" 
+                           FontSize="16" 
+                           FontAttributes="Bold"/>
+
+                    <HorizontalStackLayout Spacing="10">
+                        <Entry x:Name="IpEntry"
+                               Text="{Binding IpAddress}"
+                               Placeholder="192.168.1.100"
+                               PlaceholderColor="#6B7280"
+                               TextColor="#EAF0F7"
+                               BackgroundColor="#121924"
+                               HorizontalOptions="FillAndExpand"
+                               Keyboard="Url"/>
+
+                        <Button Text="Сохранить" 
+                                Command="{Binding SaveIpCommand}"
+                                BackgroundColor="#2B8FFF"
+                                TextColor="White"
+                                CornerRadius="8"
+                                WidthRequest="100"/>
+                    </HorizontalStackLayout>
+
+                    <Button Text="Проверить соединение" 
+                            Command="{Binding TestConnectionCommand}"
+                            BackgroundColor="#263240"
+                            TextColor="#EAF0F7"
+                            CornerRadius="8"/>
+
+                    <Label Text="{Binding StatusMessage}"
+                           TextColor="{Binding IsConnected, Converter={StaticResource BoolToColorConverter}}"
+                           FontSize="14"
+                           HorizontalTextAlignment="Center"/>
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- RGB Remote Control -->
+            <Frame BackgroundColor="#0E141B" 
+                   BorderColor="#1B2430" 
+                   CornerRadius="20" 
+                   Padding="16">
+                <VerticalStackLayout Spacing="12">
+
+                    <!-- Header -->
+                    <Grid ColumnDefinitions="*,Auto" Margin="0,0,0,10">
+                        <Label Text="RGB Remote" 
+                               TextColor="#EAF0F7" 
+                               FontSize="18" 
+                               FontAttributes="Bold"
+                               VerticalOptions="Center"/>
+                        <BoxView Grid.Column="1"
+                                 WidthRequest="10" 
+                                 HeightRequest="10" 
+                                 CornerRadius="5"
+                                 Color="{Binding IsConnected, Converter={StaticResource BoolToLedColorConverter}}"/>
+                    </Grid>
+
+                    <!-- ON/OFF and Brightness Row -->
+                    <Grid ColumnDefinitions="*,*,*,*" ColumnSpacing="8" RowSpacing="8">
+                        <Button Grid.Column="0" 
+                                Text="ON" 
+                                Command="{Binding SendCommandCommand}"
+                                CommandParameter="ON"
+                                BackgroundColor="#2B8FFF"
+                                TextColor="White"
+                                CornerRadius="20"
+                                HeightRequest="50"
+                                FontSize="14"
+                                FontAttributes="Bold"/>
+
+                        <Button Grid.Column="1" 
+                                Text="OFF" 
+                                Command="{Binding SendCommandCommand}"
+                                CommandParameter="OFF"
+                                BackgroundColor="#1A222A"
+                                TextColor="#EAF0F7"
+                                CornerRadius="20"
+                                HeightRequest="50"
+                                FontSize="14"/>
+
+                        <Button Grid.Column="2" 
+                                Text="☀↑" 
+                                Command="{Binding SendCommandCommand}"
+                                CommandParameter="BRIGHT_UP"
+                                BackgroundColor="#17212B"
+                                TextColor="#EAF0F7"
+                                CornerRadius="12"
+                                HeightRequest="50"
+                                FontSize="16"/>
+
+                        <Button Grid.Column="3" 
+                                Text="☀↓" 
+                                Command="{Binding SendCommandCommand}"
+                                CommandParameter="BRIGHT_DOWN"
+                                BackgroundColor="#17212B"
+                                TextColor="#EAF0F7"
+                                CornerRadius="12"
+                                HeightRequest="50"
+                                FontSize="16"/>
+                    </Grid>
+
+                    <!-- Primary Colors -->
+                    <Grid ColumnDefinitions="*,*,*,*" ColumnSpacing="8">
+                        <Button Grid.Column="0" 
+                                Command="{Binding SendCommandCommand}"
+                                CommandParameter="R"
+                                BackgroundColor="#FF2B2B"
+                                CornerRadius="25"
+                                HeightRequest="70"
+                                WidthRequest="70"
+                                BorderWidth="2"
+                                BorderColor="#FFFFFF20"/>
+
+                        <Button Grid.Column="1" 
+                                Command="{Binding SendCommandCommand}"
+                                CommandParameter="G"
+                                BackgroundColor="#18D35F"
+                                CornerRadius="25"
+                                HeightRequest="70"
+                                WidthRequest="70"
+                                BorderWidth="2"
+                                BorderColor="#FFFFFF20"/>
+
+                        <Button Grid.Column="2" 
+                                Command="{Binding SendCommandCommand}"
+                                CommandParameter="B"
+                                BackgroundColor="#2D7DFF"
+                                CornerRadius="25"
+                                HeightRequest="70"
+                                WidthRequest="70"
+                                BorderWidth="2"
+                                BorderColor="#FFFFFF20"/>
+
+                        <Button Grid.Column="3" 
+                                Command="{Binding SendCommandCommand}"
+                                CommandParameter="W"
+                                BackgroundColor="#F9F9F9"
+                                CornerRadius="25"
+                                HeightRequest="70"
+                                WidthRequest="70"
+                                BorderWidth="2"
+                                BorderColor="#FFFFFF20"/>
+                    </Grid>
+
+                    <!-- Color Palette Row 1 -->
+                    <Grid ColumnDefinitions="*,*,*,*" ColumnSpacing="8">
+                        <Button Grid.Column="0" Command="{Binding SendCommandCommand}" CommandParameter="C1"
+                                BackgroundColor="#FF7B7B" CornerRadius="25" HeightRequest="70" BorderWidth="2" BorderColor="#FFFFFF20"/>
+                        <Button Grid.Column="1" Command="{Binding SendCommandCommand}" CommandParameter="C2"
+                                BackgroundColor="#FF9F3B" CornerRadius="25" HeightRequest="70" BorderWidth="2" BorderColor="#FFFFFF20"/>
+                        <Button Grid.Column="2" Command="{Binding SendCommandCommand}" CommandParameter="C3"
+                                BackgroundColor="#FFE23A" CornerRadius="25" HeightRequest="70" BorderWidth="2" BorderColor="#FFFFFF20"/>
+                        <Button Grid.Column="3" Command="{Binding SendCommandCommand}" CommandParameter="C4"
+                                BackgroundColor="#A7FF3A" CornerRadius="25" HeightRequest="70" BorderWidth="2" BorderColor="#FFFFFF20"/>
+                    </Grid>
+
+                    <!-- Color Palette Row 2 -->
+                    <Grid ColumnDefinitions="*,*,*,*" ColumnSpacing="8">
+                        <Button Grid.Column="0" Command="{Binding SendCommandCommand}" CommandParameter="C5"
+                                BackgroundColor="#FF3AA2" CornerRadius="25" HeightRequest="70" BorderWidth="2" BorderColor="#FFFFFF20"/>
+                        <Button Grid.Column="1" Command="{Binding SendCommandCommand}" CommandParameter="C6"
+                                BackgroundColor="#FF5AC7" CornerRadius="25" HeightRequest="70" BorderWidth="2" BorderColor="#FFFFFF20"/>
+                        <Button Grid.Column="2" Command="{Binding SendCommandCommand}" CommandParameter="C7"
+                                BackgroundColor="#B87BFF" CornerRadius="25" HeightRequest="70" BorderWidth="2" BorderColor="#FFFFFF20"/>
+                        <Button Grid.Column="3" Command="{Binding SendCommandCommand}" CommandParameter="C8"
+                                BackgroundColor="#7BC6FF" CornerRadius="25" HeightRequest="70" BorderWidth="2" BorderColor="#FFFFFF20"/>
+                    </Grid>
+
+                    <!-- Color Palette Row 3 -->
+                    <Grid ColumnDefinitions="*,*,*,*" ColumnSpacing="8">
+                        <Button Grid.Column="0" Command="{Binding SendCommandCommand}" CommandParameter="C9"
+                                BackgroundColor="#3AFFDA" CornerRadius="25" HeightRequest="70" BorderWidth="2" BorderColor="#FFFFFF20"/>
+                        <Button Grid.Column="1" Command="{Binding SendCommandCommand}" CommandParameter="C10"
+                                BackgroundColor="#3AFF9E" CornerRadius="25" HeightRequest="70" BorderWidth="2" BorderColor="#FFFFFF20"/>
+                        <Button Grid.Column="2" Command="{Binding SendCommandCommand}" CommandParameter="C11"
+                                BackgroundColor="#9DFF3A" CornerRadius="25" HeightRequest="70" BorderWidth="2" BorderColor="#FFFFFF20"/>
+                        <Button Grid.Column="3" Command="{Binding SendCommandCommand}" CommandParameter="C12"
+                                BackgroundColor="#37FF5F" CornerRadius="25" HeightRequest="70" BorderWidth="2" BorderColor="#FFFFFF20"/>
+                    </Grid>
+
+                    <!-- Effects Row -->
+                    <Grid ColumnDefinitions="*,*,*,*" ColumnSpacing="8">
+                        <Button Grid.Column="0" 
+                                Text="FLASH" 
+                                Command="{Binding SendCommandCommand}"
+                                CommandParameter="FLASH"
+                                BackgroundColor="#263240"
+                                TextColor="#EAF0F7"
+                                CornerRadius="12"
+                                HeightRequest="45"
+                                FontSize="12"/>
+
+                        <Button Grid.Column="1" 
+                                Text="STROBE" 
+                                Command="{Binding SendCommandCommand}"
+                                CommandParameter="STROBE"
+                                BackgroundColor="#263240"
+                                TextColor="#EAF0F7"
+                                CornerRadius="12"
+                                HeightRequest="45"
+                                FontSize="12"/>
+
+                        <Button Grid.Column="2" 
+                                Text="FADE" 
+                                Command="{Binding SendCommandCommand}"
+                                CommandParameter="FADE"
+                                BackgroundColor="#263240"
+                                TextColor="#EAF0F7"
+                                CornerRadius="12"
+                                HeightRequest="45"
+                                FontSize="12"/>
+
+                        <Button Grid.Column="3" 
+                                Text="SMOOTH" 
+                                Command="{Binding SendCommandCommand}"
+                                CommandParameter="SMOOTH"
+                                BackgroundColor="#263240"
+                                TextColor="#EAF0F7"
+                                CornerRadius="12"
+                                HeightRequest="45"
+                                FontSize="12"/>
+                    </Grid>
+
+                    <!-- Footer -->
+                    <Label Text="Нажми для отправки IR" 
+                           TextColor="#6B7280" 
+                           FontSize="12" 
+                           HorizontalTextAlignment="Center"
+                           Margin="0,5,0,0"/>
+                </VerticalStackLayout>
+            </Frame>
+
+        </VerticalStackLayout>
+    </ScrollView>
+
+</ContentPage>
