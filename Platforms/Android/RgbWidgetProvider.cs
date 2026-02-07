@@ -52,25 +52,39 @@ public class RgbWidgetProvider : AppWidgetProvider
         views.SetOnClickPendingIntent(buttonId,pendingIntent);
         }
 
-    public override void OnReceive(Context context, Intent intent)
-    {
-        base.OnReceive(context, intent);
+    public override void OnReceive(Context context,Intent intent)
+        {
+        base.OnReceive(context,intent);
 
         var action = intent.Action;
-        string command = action switch
-        {
-            ACTION_ON => "ON",
-            ACTION_OFF => "OFF",
-            ACTION_BRIGHT_UP => "BRIGHT_UP",
-            ACTION_BRIGHT_DOWN => "BRIGHT_DOWN",
-            _ => null
-        };
+        string? command = action switch
+            {
+                ACTION_ON => "ON",
+                ACTION_OFF => "OFF",
+                ACTION_BRIGHT_UP => "BRIGHT_UP",
+                ACTION_BRIGHT_DOWN => "BRIGHT_DOWN",
+                _ => null
+                };
 
-        if (!string.IsNullOrEmpty(command))
+        if (string.IsNullOrEmpty(command))
+            return;
+
+        // Keep the BroadcastReceiver alive for async work
+        var pendingResult = GoAsync();
+
+        Task.Run(async () =>
         {
-            _ = SendCommandToEsp(context, command);
+            try
+                {
+                await SendCommandToEsp(context,command);
+                }
+            finally
+                {
+                pendingResult.Finish();
+                }
+        });
         }
-    }
+
 
     private static async Task SendCommandToEsp(Context context,string command)
         {
@@ -86,6 +100,10 @@ public class RgbWidgetProvider : AppWidgetProvider
             if (string.IsNullOrEmpty(ipAddress))
                 {
                 System.Diagnostics.Debug.WriteLine("Widget: IP is empty");
+                global::Android.Util.Log.Debug("RGB_WIDGET","Widget: IP is empty");
+
+
+
                 return;
                 }
 
@@ -96,19 +114,23 @@ public class RgbWidgetProvider : AppWidgetProvider
                                  .Trim();
 
             System.Diagnostics.Debug.WriteLine($"Widget sending to IP: {ipAddress}, command: {command}");
+            global::Android.Util.Log.Debug("RGB_WIDGET","Command sent: " + command);
 
             using var httpClient = new HttpClient { Timeout = TimeSpan.FromSeconds(5) };
             var url = $"http://{ipAddress}/send?code={Uri.EscapeDataString(command)}";
 
             System.Diagnostics.Debug.WriteLine($"Widget URL: {url}");
+            global::Android.Util.Log.Debug("RGB_WIDGET",$"Widget URL: {url}");
 
             var response = await httpClient.PostAsync(url,null);
 
             System.Diagnostics.Debug.WriteLine($"Widget response: {response.StatusCode}");
+            global::Android.Util.Log.Debug("RGB_WIDGET",$"Widget response: {response.StatusCode}");
             }
         catch (Exception ex)
             {
             System.Diagnostics.Debug.WriteLine($"Widget error: {ex.Message}");
+            global::Android.Util.Log.Error("RGB_WIDGET",$"Widget error: {ex}");
             }
         }
     }
