@@ -1,4 +1,4 @@
-using Android.App;
+﻿using Android.App;
 using Android.Appwidget;
 using Android.Content;
 using Android.Widget;
@@ -37,14 +37,20 @@ public class RgbWidgetProvider : AppWidgetProvider
         appWidgetManager.UpdateAppWidget(appWidgetId, views);
     }
 
-    private static void SetupButton(Context context, RemoteViews views, int buttonId, string action)
-    {
-        var intent = new Intent(context, typeof(RgbWidgetProvider));
+    private static void SetupButton(Context context,RemoteViews views,int buttonId,string action)
+        {
+        var intent = new Intent(context,typeof(RgbWidgetProvider));
         intent.SetAction(action);
-        var pendingIntent = PendingIntent.GetBroadcast(context, 0, intent, 
+
+        // ВАЖНО: используем уникальный requestCode для каждой кнопки
+        var pendingIntent = PendingIntent.GetBroadcast(
+            context,
+            buttonId,  // <-- это важно! Каждая кнопка должна иметь свой ID
+            intent,
             PendingIntentFlags.UpdateCurrent | PendingIntentFlags.Immutable);
-        views.SetOnClickPendingIntent(buttonId, pendingIntent);
-    }
+
+        views.SetOnClickPendingIntent(buttonId,pendingIntent);
+        }
 
     public override void OnReceive(Context context, Intent intent)
     {
@@ -66,20 +72,43 @@ public class RgbWidgetProvider : AppWidgetProvider
         }
     }
 
-    private static async Task SendCommandToEsp(Context context, string command)
-    {
+    private static async Task SendCommandToEsp(Context context,string command)
+        {
         try
-        {
-            var prefs = context.GetSharedPreferences("RgbRemoteApp", FileCreationMode.Private);
-            var ipAddress = prefs.GetString("esp_ip_address", "192.168.1.100");
+            {
+            // Preferences API в .NET MAUI использует это имя по умолчанию
+            var prefs = context.GetSharedPreferences(
+                $"{context.PackageName}.microsoft.maui.essentials.preferences",
+                FileCreationMode.Private);
 
-            using var httpClient = new HttpClient { Timeout = TimeSpan.FromSeconds(3) };
+            var ipAddress = prefs.GetString("esp_ip_address","192.168.178.51");
+
+            if (string.IsNullOrEmpty(ipAddress))
+                {
+                System.Diagnostics.Debug.WriteLine("Widget: IP is empty");
+                return;
+                }
+
+            // Очистка IP
+            ipAddress = ipAddress.Replace("http://","")
+                                 .Replace("https://","")
+                                 .Replace("/","")
+                                 .Trim();
+
+            System.Diagnostics.Debug.WriteLine($"Widget sending to IP: {ipAddress}, command: {command}");
+
+            using var httpClient = new HttpClient { Timeout = TimeSpan.FromSeconds(5) };
             var url = $"http://{ipAddress}/send?code={Uri.EscapeDataString(command)}";
-            await httpClient.PostAsync(url, null);
-        }
+
+            System.Diagnostics.Debug.WriteLine($"Widget URL: {url}");
+
+            var response = await httpClient.PostAsync(url,null);
+
+            System.Diagnostics.Debug.WriteLine($"Widget response: {response.StatusCode}");
+            }
         catch (Exception ex)
-        {
+            {
             System.Diagnostics.Debug.WriteLine($"Widget error: {ex.Message}");
+            }
         }
     }
-}
