@@ -12,20 +12,8 @@
 		android:label="@string/app_name"
 		android:usesCleartextTraffic="true">
 		
-		<!-- Widget Receiver -->
-		<receiver android:name=".RgbWidgetProvider" 
-			android:exported="true"
-			android:label="@string/app_name">
-			<intent-filter>
-				<action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
-				<action android:name="com.rgbremote.app.ACTION_ON" />
-				<action android:name="com.rgbremote.app.ACTION_OFF" />
-				<action android:name="com.rgbremote.app.ACTION_BRIGHT_UP" />
-				<action android:name="com.rgbremote.app.ACTION_BRIGHT_DOWN" />
-			</intent-filter>
-			<meta-data android:name="android.appwidget.provider"
-				android:resource="@xml/rgb_widget_provider" />
-		</receiver>
+		
+		
 		
 	</application>
 	
